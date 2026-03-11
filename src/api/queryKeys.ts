@@ -1,0 +1,15 @@
+export const queryKeys = {
+  company: ['company'] as const,
+  customers: ['customers'] as const,
+  customerById: (id: string) => ['customer', id] as const,
+  products: ['products'] as const,
+  productById: (id: string) => ['product', id] as const,
+  categories: ['categories'] as const,
+  subCategories: (categoryId: number) => ['subcategories', categoryId] as const,
+  routes: ['routes'] as const,
+  salespeople: ['salespeople'] as const,
+  salespersonById: (id: number) => ['salesperson', id] as const,
+  orders: ['orders'] as const,
+  ordersByCustomer: (customerId: string) => ['orders', 'customer', customerId] as const,
+  ordersBySalesDate: (salesId: number, orderDate: string) => ['orders', 'salesDate', salesId, orderDate] as const,
+};
