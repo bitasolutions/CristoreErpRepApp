@@ -6,3 +6,18 @@ coverage/
 .DS_Store
 npm-debug.log*
 yarn-error.log*
+
+# Android
+android/.gradle/
+android/app/build/
+
+# Gradle
+.gradle/
+.gradle-home/
+
+# Build
+build/
+dist/
+
+# Logs
+*.log
