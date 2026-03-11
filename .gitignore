@@ -1,23 +1,32 @@
+# Node
 node_modules/
+
+# Expo
 .expo/
-android/
-ios/
-coverage/
-.DS_Store
-npm-debug.log*
-yarn-error.log*
-
-# Android
-android/.gradle/
-android/app/build/
-
-# Gradle
-.gradle/
-.gradle-home/
-
-# Build
-build/
-dist/
+.expo-shared/
 
 # Logs
 *.log
+npm-debug.log*
+yarn-error.log*
+
+# Mac
+.DS_Store
+
+# Coverage
+coverage/
+
+# Build outputs
+build/
+dist/
+
+# Android build files
+android/.gradle/
+android/app/build/
+
+# Gradle cache
+.gradle/
+.gradle-home/
+
+# iOS build
+ios/build/
