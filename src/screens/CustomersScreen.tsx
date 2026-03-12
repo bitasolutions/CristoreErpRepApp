@@ -9,6 +9,7 @@ import {CustomerTree} from '@/components/CustomerTree';
 import {useDebouncedValue} from '@/hooks/useDebouncedValue';
 import {useCustomers} from '@/hooks/api';
 import {useOrderStore} from '@/store/orderStore';
+import {useVanSaleStore} from '@/store/vansaleStore';
 import type {RootStackParamList} from '@/navigation/AppNavigator';
 import type {Customer} from '@/types/api';
 
@@ -18,15 +19,24 @@ export const CustomersScreen = () => {
   const {data, isLoading} = useCustomers(debouncedSearch || undefined);
   const setCustomer = useOrderStore(state => state.setCustomer);
   const selectedCustomerId = useOrderStore(state => state.selectedCustomer?.customerId ?? undefined);
+  const setVanSaleCustomer = useVanSaleStore(state => state.setCustomer);
+  const selectedVanSaleCustomerId = useVanSaleStore(
+    state => state.selectedCustomer?.customerId ?? undefined,
+  );
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'Customers'>>();
+  const isVanSale = Boolean(route.params?.returnToVanSale);
 
   const customers = useMemo(() => data ?? [], [data]);
 
   const handleSelect = (customer: Customer) => {
-    setCustomer(customer);
-    if (route.params?.returnToOrder) {
+    if (isVanSale) {
+      setVanSaleCustomer(customer);
+    } else {
+      setCustomer(customer);
+    }
+    if (route.params?.returnToOrder || route.params?.returnToVanSale) {
       navigation.goBack();
     }
   };
@@ -46,7 +56,11 @@ export const CustomersScreen = () => {
           data={[{key: 'tree'}]}
           keyExtractor={item => item.key}
           renderItem={() => (
-            <CustomerTree customers={customers} onSelect={handleSelect} selectedCustomerId={selectedCustomerId} />
+            <CustomerTree
+              customers={customers}
+              onSelect={handleSelect}
+              selectedCustomerId={isVanSale ? selectedVanSaleCustomerId : selectedCustomerId}
+            />
           )}
           ListEmptyComponent={<Text muted>No customers found.</Text>}
         />
@@ -54,4 +68,3 @@ export const CustomersScreen = () => {
     </ScreenContainer>
   );
 };
-

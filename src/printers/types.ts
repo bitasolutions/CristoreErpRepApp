@@ -17,10 +17,18 @@ export interface ReceiptData {
   customer: string;
   date: string;
   orderNumber: string;
+  documentLabel?: string;
   lines: CartLine[];
   subTotal: number;
   taxTotal: number;
   grandTotal: number;
+  location?: string;
+  paymentMode?: string;
+  transactionNo?: string;
+  cash?: number;
+  mpesa?: number;
+  equity?: number;
+  copyLabel?: string;
 }
 
 export type ReceiptWidth = '58mm' | '80mm';

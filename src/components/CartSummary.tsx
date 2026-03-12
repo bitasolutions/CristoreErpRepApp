@@ -9,11 +9,13 @@ export const CartSummary = ({
   onSubmit,
   loading,
   disabled,
+  submitLabel = 'Submit Order',
 }: {
   grandTotal: number;
   onSubmit: () => void;
   loading?: boolean;
   disabled?: boolean;
+  submitLabel?: string;
 }) => {
   const c = useThemeColors();
   return (
@@ -28,7 +30,7 @@ export const CartSummary = ({
         onPress={onSubmit}
         loading={loading}
         disabled={disabled}>
-        Submit Order
+        {submitLabel}
       </Button>
     </View>
   );

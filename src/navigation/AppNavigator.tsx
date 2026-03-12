@@ -14,15 +14,21 @@ import {OrderCreateScreen} from '@/screens/OrderCreateScreen';
 import {OrdersHistoryScreen} from '@/screens/OrdersHistoryScreen';
 import {SettingsScreen} from '@/screens/SettingsScreen';
 import {PrinterTestScreen} from '@/screens/PrinterTestScreen';
+import {VanSaleCreateScreen} from '@/screens/VanSaleCreateScreen';
+import {VanSalesSummaryScreen} from '@/screens/VanSalesSummaryScreen';
+import {VanSaleDetailScreen} from '@/screens/VanSaleDetailScreen';
 
 export type RootStackParamList = {
   Login: undefined;
   Dashboard: undefined;
-  Customers: {returnToOrder?: boolean};
+  Customers: {returnToOrder?: boolean; returnToVanSale?: boolean};
   Products: undefined;
   Categories: undefined;
   Routes: undefined;
   OrderCreate: undefined;
+  VanSaleCreate: undefined;
+  VanSalesSummary: undefined;
+  VanSaleDetail: {saleNo: string};
   OrdersHistory: undefined;
   Settings: undefined;
   PrinterTest: undefined;
@@ -66,6 +72,9 @@ export const AppNavigator = () => {
             <Stack.Screen name="Categories" component={CategoriesScreen} />
             <Stack.Screen name="Routes" component={RoutesScreen} />
             <Stack.Screen name="OrderCreate" component={OrderCreateScreen} options={{title: 'Create Order'}} />
+            <Stack.Screen name="VanSaleCreate" component={VanSaleCreateScreen} options={{title: 'Van Sale'}} />
+            <Stack.Screen name="VanSalesSummary" component={VanSalesSummaryScreen} options={{title: 'Van Sales'}} />
+            <Stack.Screen name="VanSaleDetail" component={VanSaleDetailScreen} options={{title: 'Sale Details'}} />
             <Stack.Screen name="OrdersHistory" component={OrdersHistoryScreen} options={{title: 'Orders'}} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen name="PrinterTest" component={PrinterTestScreen} options={{title: 'Printer Test'}} />

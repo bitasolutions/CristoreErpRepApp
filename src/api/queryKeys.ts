@@ -12,4 +12,10 @@ export const queryKeys = {
   orders: ['orders'] as const,
   ordersByCustomer: (customerId: string) => ['orders', 'customer', customerId] as const,
   ordersBySalesDate: (salesId: number, orderDate: string) => ['orders', 'salesDate', salesId, orderDate] as const,
+  vanSaleOpen: (loggedUser: string | number) => ['vansale', 'open', loggedUser] as const,
+  vanSalesByDate: (date: string) => ['vansale', 'bydate', date] as const,
+  vanSalesSearch: (date: string, query: string) => ['vansale', 'search', date, query] as const,
+  vanSaleDetails: (saleNo: string) => ['vansale', 'details', saleNo] as const,
+  vanSaleProducts: (refNo: string, categoryId?: number, subCategoryId?: number) =>
+    ['vansale', 'products', refNo, categoryId ?? -1, subCategoryId ?? -1] as const,
 };

@@ -17,6 +17,10 @@ export const orderApi = {
     const {data} = await api.get<CustomerOrder[]>(`/api/orders/${salesId}/${orderDate}`);
     return data ?? [];
   },
+  listByCustomerName: async (name: string) => {
+    const {data} = await api.get<CustomerOrder[]>(`/api/orders/bycustomer/${name}`);
+    return data ?? [];
+  },
   create: async (payload: CreateOrderDto) => {
     const {data} = await api.post<CreateOrderResponse>('/api/orders/create', payload);
     return data;

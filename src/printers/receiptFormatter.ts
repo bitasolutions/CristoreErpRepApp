@@ -23,6 +23,7 @@ export const formatReceiptText = (
   const out: string[] = [];
 
   // ── Header ──
+
   out.push(`<CB>${receipt.company.companyName}</CB>`);
   if (receipt.printPin && receipt.company.pinNo) {
     out.push(`<C>PIN: ${receipt.company.pinNo}</C>`);
@@ -38,9 +39,32 @@ export const formatReceiptText = (
   }
 
   out.push(sep);
-  out.push(`Order: ${receipt.orderNumber}`);
+  if (receipt.copyLabel) {
+    out.push(`<C><B>${receipt.copyLabel}</B></C>`);
+  }
+  const docLabel = receipt.documentLabel ?? 'Order';
+  out.push(`${docLabel}: ${receipt.orderNumber}`);
   out.push(`Date:  ${receipt.date}`);
   out.push(`<M>CUST: ${receipt.customer}</M>`);
+  if (receipt.location) {
+    out.push(`LOC:  ${receipt.location}`);
+  }
+  if (receipt.paymentMode) {
+    out.push(`PAY:  ${receipt.paymentMode}`);
+  }
+  if (receipt.transactionNo) {
+    out.push(`TRN:  ${receipt.transactionNo}`);
+  }
+  const payLines: Array<[string, number | undefined]> = [
+    ['Cash', receipt.cash],
+    ['Mpesa', receipt.mpesa],
+    ['Equity', receipt.equity],
+  ];
+  for (const [label, value] of payLines) {
+    if (value && value > 0) {
+      out.push(rightAlign(`${label}:`, formatCurrency(value), maxChars));
+    }
+  }
   out.push(sep);
 
   // ── Line items (2-line layout) ──

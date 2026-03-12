@@ -298,6 +298,7 @@ export const Input = ({
   keyboardType,
   placeholder,
   secureTextEntry,
+  editable = true,
   style,
 }: {
   label?: string;
@@ -306,6 +307,7 @@ export const Input = ({
   keyboardType?: KeyboardTypeOptions;
   placeholder?: string;
   secureTextEntry?: boolean;
+  editable?: boolean;
   style?: ViewStyle;
 }) => {
   const c = useThemeColors();
@@ -318,8 +320,16 @@ export const Input = ({
         keyboardType={keyboardType}
         placeholder={placeholder}
         secureTextEntry={secureTextEntry}
+        editable={editable}
         placeholderTextColor={c.textMuted}
-        style={[inpStyles.input, {color: c.text, borderColor: c.border, backgroundColor: c.surface}]}
+        style={[
+          inpStyles.input,
+          {
+            color: c.text,
+            borderColor: c.border,
+            backgroundColor: editable ? c.surface : c.surfaceVariant,
+          },
+        ]}
       />
     </View>
   );

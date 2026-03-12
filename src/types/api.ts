@@ -158,6 +158,112 @@ export interface CreateOrderDto {
 
 export type CreateOrderResponse = ApiResponseWithData<CustomerOrder>;
 
+export interface VanSaleLine {
+  id?: number;
+  refNo?: string | null;
+  productId?: string | null;
+  productName?: string | null;
+  issuePrice: number;
+  dr: number;
+  cr: number;
+  actionNo?: string | null;
+  actionDate: string;
+  entryDate: string;
+  action?: string | null;
+}
+
+export interface VanSaleHeader {
+  id?: number;
+  refNo?: string | null;
+  refDate: string;
+  customerId?: string | null;
+  customerName?: string | null;
+  location?: string | null;
+  amount: number;
+  vatAmt: number;
+  entrydate: string;
+  action?: string | null;
+  actionNo?: string | null;
+  entryBy?: string | null;
+  cash: number;
+  mpesa: number;
+  equity: number;
+  transactionNo?: string | null;
+  lines: VanSaleLine[];
+}
+
+export type CreateVanSaleDto = VanSaleHeader;
+
+export interface ActiveVanSale {
+  id: number;
+  refNo?: string | null;
+  refDate?: string | null;
+  entryBy?: string | null;
+  initialAmt: number;
+  closingAmt: number;
+  issuedTo?: string | null;
+  vehicleReg?: string | null;
+  driver?: string | null;
+  status?: string | null;
+}
+
+export type VanSaleOpenResponse = ApiResponseWithData<ActiveVanSale>;
+export type CreateVanSaleResponse = ApiResponseWithData<VanSaleHeader>;
+
+export interface VanSaleSummaryItem {
+  id: number;
+  refNo?: string | null;
+  refDate: string;
+  customerId?: string | null;
+  customerName?: string | null;
+  location?: string | null;
+  amount: number;
+  vatAmt: number;
+  downloaded: boolean;
+  entrydate: string;
+  action?: string | null;
+  actionNo?: string | null;
+  entryBy?: string | null;
+}
+
+export type VanSaleSummaryResponse = ApiResponseWithData<VanSaleSummaryItem[]>;
+
+export interface VanSaleDetailLine {
+  id: number;
+  refNo?: string | null;
+  productId?: string | null;
+  productName?: string | null;
+  issuePrice: number;
+  dr: number;
+  cr: number;
+  actionNo?: string | null;
+  actionDate: string;
+  entryDate: string;
+  action?: string | null;
+  lineTotal: number;
+}
+
+export interface VanSaleDetail {
+  id: number;
+  refNo?: string | null;
+  refDate: string;
+  customerId?: string | null;
+  customerName?: string | null;
+  location?: string | null;
+  amount: number;
+  vatAmt: number;
+  downloaded: boolean;
+  entrydate: string;
+  action?: string | null;
+  actionNo?: string | null;
+  entryBy?: string | null;
+  PaidVia?: string | null;
+  transactionNo?: string | null;
+  lines: VanSaleDetailLine[];
+}
+
+export type VanSaleDetailResponse = ApiResponseWithData<VanSaleDetail>;
+
 export interface AuthUser {
   id: number;
   repName: string;
