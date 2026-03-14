@@ -17,6 +17,7 @@ export interface VanSaleLineItem {
   taxRate: number;
   taxCode?: string | null;
   categoryId: number;
+  balQty: number;
 }
 
 interface VanSaleState {
@@ -40,14 +41,22 @@ export const useVanSaleStore = create<VanSaleState>((set, get) => ({
       if (!product.productId) {
         return state;
       }
+      const available = product.balQty ?? 0;
 
       const existing = state.lines.find(line => line.productId === product.productId);
       if (existing) {
+        if (existing.qty >= available) {
+          return state;
+        }
         return {
           lines: state.lines.map(line =>
             line.productId === product.productId ? {...line, qty: line.qty + 1} : line,
           ),
         };
+      }
+
+      if (available <= 0) {
+        return state;
       }
 
       return {
@@ -61,6 +70,7 @@ export const useVanSaleStore = create<VanSaleState>((set, get) => ({
             taxRate: parseTaxRate(product.taxCharge),
             taxCode: product.taxCode ?? null,
             categoryId: product.categoryId,
+            balQty: available,
           },
         ],
       };
@@ -73,13 +83,22 @@ export const useVanSaleStore = create<VanSaleState>((set, get) => ({
       if (!product.productId) {
         return state;
       }
+      const available = product.balQty ?? 0;
       const existing = state.lines.find(line => line.productId === product.productId);
       if (existing) {
+        const newQty = Math.min(existing.qty + qty, available);
+        if (newQty <= existing.qty) {
+          return state;
+        }
         return {
           lines: state.lines.map(line =>
-            line.productId === product.productId ? {...line, qty: line.qty + qty} : line,
+            line.productId === product.productId ? {...line, qty: newQty} : line,
           ),
         };
+      }
+
+      if (available <= 0) {
+        return state;
       }
 
       return {
@@ -88,11 +107,12 @@ export const useVanSaleStore = create<VanSaleState>((set, get) => ({
           {
             productId: product.productId,
             productName: product.productName ?? 'Unnamed product',
-            qty,
+            qty: Math.min(qty, available),
             unitPrice: product.sellingPrice,
             taxRate: parseTaxRate(product.taxCharge),
             taxCode: product.taxCode ?? null,
             categoryId: product.categoryId,
+            balQty: available,
           },
         ],
       };
@@ -100,7 +120,11 @@ export const useVanSaleStore = create<VanSaleState>((set, get) => ({
   updateQty: (productId, qty) =>
     set(state => ({
       lines: state.lines
-        .map(line => (line.productId === productId ? {...line, qty: Math.max(0, qty)} : line))
+        .map(line => {
+          if (line.productId !== productId) return line;
+          const clamped = Math.min(Math.max(0, qty), line.balQty);
+          return {...line, qty: clamped};
+        })
         .filter(line => line.qty > 0),
     })),
   removeLine: productId =>
@@ -108,16 +132,16 @@ export const useVanSaleStore = create<VanSaleState>((set, get) => ({
   clearSale: () => set({selectedCustomer: undefined, lines: []}),
   totals: () => {
     const lines = get().lines;
-    const subTotal = lines.reduce((sum, line) => sum + line.qty * line.unitPrice, 0);
-    const taxTotal = lines.reduce((sum, line) => {
+    const grandTotal = Math.round(lines.reduce((sum, line) => sum + line.qty * line.unitPrice, 0));
+    const taxTotal = Math.round(lines.reduce((sum, line) => {
       const rate = line.taxRate > 1 ? line.taxRate / 100 : line.taxRate;
       const safeRate = Number.isFinite(rate) ? rate : 0;
-      return sum + line.qty * line.unitPrice * safeRate;
-    }, 0);
+      return sum + (line.qty * line.unitPrice * safeRate) / (1 + safeRate);
+    }, 0));
     return {
-      subTotal,
+      subTotal: grandTotal - taxTotal,
       taxTotal,
-      grandTotal: subTotal + taxTotal,
+      grandTotal,
     };
   },
 }));

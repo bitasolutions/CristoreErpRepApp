@@ -108,16 +108,16 @@ export const useOrderStore = create<OrderState>((set, get) => ({
   clearOrder: () => set({selectedCustomer: undefined, lines: []}),
   totals: () => {
     const lines = get().lines;
-    const subTotal = lines.reduce((sum, line) => sum + line.qty * line.unitPrice, 0);
-    const taxTotal = lines.reduce((sum, line) => {
+    const grandTotal = Math.round(lines.reduce((sum, line) => sum + line.qty * line.unitPrice, 0));
+    const taxTotal = Math.round(lines.reduce((sum, line) => {
       const rate = line.taxRate > 1 ? line.taxRate / 100 : line.taxRate;
       const safeRate = Number.isFinite(rate) ? rate : 0;
-      return sum + line.qty * line.unitPrice * safeRate;
-    }, 0);
+      return sum + (line.qty * line.unitPrice * safeRate) / (1 + safeRate);
+    }, 0));
     return {
-      subTotal,
+      subTotal: grandTotal - taxTotal,
       taxTotal,
-      grandTotal: subTotal + taxTotal,
+      grandTotal,
     };
   },
 }));

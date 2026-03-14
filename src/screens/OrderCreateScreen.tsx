@@ -40,7 +40,7 @@ const CartSeparator = () => {
 const calcVatAmount = (qty: number, unitPrice: number, taxRate: number) => {
   const rate = taxRate > 1 ? taxRate / 100 : taxRate;
   const safeRate = Number.isFinite(rate) ? rate : 0;
-  return qty * unitPrice * safeRate;
+  return (qty * unitPrice * safeRate) / (1 + safeRate);
 };
 
 export const OrderCreateScreen = () => {
@@ -76,12 +76,12 @@ export const OrderCreateScreen = () => {
   const updateQty = useOrderStore(state => state.updateQty);
   const clearOrder = useOrderStore(state => state.clearOrder);
   const totalsValue = useMemo(() => {
-    const subTotal = lines.reduce((sum, line) => sum + line.qty * line.unitPrice, 0);
-    const taxTotal = lines.reduce(
+    const grandTotal = Math.round(lines.reduce((sum, line) => sum + line.qty * line.unitPrice, 0));
+    const taxTotal = Math.round(lines.reduce(
       (sum, line) => sum + calcVatAmount(line.qty, line.unitPrice, line.taxRate),
       0,
-    );
-    return { subTotal, taxTotal, grandTotal: subTotal + taxTotal };
+    ));
+    return { subTotal: grandTotal - taxTotal, taxTotal, grandTotal };
   }, [lines]);
   const sortedProducts = useMemo(
     () =>

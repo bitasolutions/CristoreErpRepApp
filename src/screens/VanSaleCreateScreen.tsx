@@ -41,7 +41,7 @@ const CartSeparator = () => {
 const calcVatAmount = (qty: number, unitPrice: number, taxRate: number) => {
   const rate = taxRate > 1 ? taxRate / 100 : taxRate;
   const safeRate = Number.isFinite(rate) ? rate : 0;
-  return qty * unitPrice * safeRate;
+  return (qty * unitPrice * safeRate) / (1 + safeRate);
 };
 
 const paymentModes = ['Cash', 'Mpesa', 'Equity'] as const;
@@ -96,12 +96,12 @@ export const VanSaleCreateScreen = () => {
   const updateQty = useVanSaleStore(state => state.updateQty);
   const clearSale = useVanSaleStore(state => state.clearSale);
   const totalsValue = useMemo(() => {
-    const subTotal = lines.reduce((sum, line) => sum + line.qty * line.unitPrice, 0);
-    const taxTotal = lines.reduce(
+    const grandTotal = Math.round(lines.reduce((sum, line) => sum + line.qty * line.unitPrice, 0));
+    const taxTotal = Math.round(lines.reduce(
       (sum, line) => sum + calcVatAmount(line.qty, line.unitPrice, line.taxRate),
       0,
-    );
-    return { subTotal, taxTotal, grandTotal: subTotal + taxTotal };
+    ));
+    return { subTotal: grandTotal - taxTotal, taxTotal, grandTotal };
   }, [lines]);
   const sortedProducts = useMemo(
     () =>
@@ -267,6 +267,7 @@ export const VanSaleCreateScreen = () => {
         setTransactionNo('');
         setPaymentIndex(0);
         setConfirmVisible(false);
+        refresh();
       } else {
         Alert.alert('Van sale failed', response.message ?? 'Unable to save van sale.');
       }
@@ -297,6 +298,17 @@ export const VanSaleCreateScreen = () => {
     const qty = Number(qtyText);
     if (!Number.isFinite(qty) || qty <= 0) {
       Alert.alert('Invalid quantity', 'Enter a quantity greater than 0.');
+      return;
+    }
+    const available = qtyProduct.balQty ?? 0;
+    const inCart = lines.find(l => l.productId === qtyProduct.productId)?.qty ?? 0;
+    const remaining = available - inCart;
+    if (remaining <= 0) {
+      Alert.alert('Out of Stock', `${qtyProduct.productName} has no available stock.`);
+      return;
+    }
+    if (Math.floor(qty) > remaining) {
+      Alert.alert('Insufficient Stock', `Only ${remaining} available for ${qtyProduct.productName}.`);
       return;
     }
     addProductWithQty(qtyProduct, Math.floor(qty));
@@ -378,8 +390,9 @@ export const VanSaleCreateScreen = () => {
                 <Button
                   type="outline"
                   compact
+                  disabled={(item.balQty ?? 0) <= 0}
                   onPress={() => openQtyDialog(item)}>
-                  Add
+                  {(item.balQty ?? 0) <= 0 ? 'Out' : 'Add'}
                 </Button>
               }
             />
@@ -509,6 +522,13 @@ export const VanSaleCreateScreen = () => {
         <Text variant="title" style={styles.dlgProduct}>
           {qtyProduct?.productName ?? ''}
         </Text>
+        <Text variant="caption" muted style={styles.dlgStock}>
+          Available: {(() => {
+            const avail = qtyProduct?.balQty ?? 0;
+            const inCart = lines.find(l => l.productId === qtyProduct?.productId)?.qty ?? 0;
+            return avail - inCart;
+          })()}
+        </Text>
         <Input
           label="Quantity"
           value={qtyText}
@@ -576,5 +596,6 @@ const styles = StyleSheet.create({
   qtyText: { minWidth: 26, textAlign: 'center', fontSize: 14, fontWeight: '600' },
   separator: { height: StyleSheet.hairlineWidth, marginHorizontal: 2 },
   emptyCart: { fontSize: 13, textAlign: 'center', paddingVertical: 10 },
-  dlgProduct: { marginBottom: 12 },
+  dlgProduct: { marginBottom: 4 },
+  dlgStock: { marginBottom: 12 },
 });
